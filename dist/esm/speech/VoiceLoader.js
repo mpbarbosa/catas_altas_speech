@@ -92,7 +92,7 @@ class VoiceLoader {
          * @type {SpeechSynthesis|null}
          * @private
          */
-        this.speechSynthesis = config.hasOwnProperty('speechSynthesis')
+        this.speechSynthesis = Object.prototype.hasOwnProperty.call(config, 'speechSynthesis')
             ? config.speechSynthesis
             : (typeof window !== 'undefined' ? window.speechSynthesis : null);
         /**

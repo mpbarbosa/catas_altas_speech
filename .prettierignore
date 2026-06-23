@@ -1,0 +1,12 @@
+# Generated build output — served by jsDelivr, never hand-edited.
+dist/
+
+# Vendored/extracted source kept in its original (mixed tab/space) style from
+# guia_js; reformatting would churn the whole tree. Adopt Prettier here later
+# via a dedicated `npm run format` pass if desired.
+src/
+examples/
+
+# Lockfile and node_modules
+package-lock.json
+node_modules/

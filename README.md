@@ -19,15 +19,16 @@ No build step, no bundler — import the ESM straight from jsDelivr:
 
 ```html
 <script type="module">
-  import SpeechSynthesisManager, { SPEECH_PRIORITY }
-    from "https://cdn.jsdelivr.net/gh/mpbarbosa/catas_altas_speech@0.1.0/dist/esm/index.js";
+  import SpeechSynthesisManager, {
+    SPEECH_PRIORITY,
+  } from 'https://cdn.jsdelivr.net/gh/mpbarbosa/catas_altas_speech@0.1.0/dist/esm/index.js';
 
   const speech = new SpeechSynthesisManager();
 
   // Call speak() inside a user gesture the first time — mobile browsers only
   // unlock audio from within a tap/click handler.
-  button.addEventListener("click", () => {
-    speech.speak("Gol do Brasil! Brasil 1 a 0 Argentina.", SPEECH_PRIORITY.MUNICIPIO);
+  button.addEventListener('click', () => {
+    speech.speak('Gol do Brasil! Brasil 1 a 0 Argentina.', SPEECH_PRIORITY.MUNICIPIO);
   });
 </script>
 ```
