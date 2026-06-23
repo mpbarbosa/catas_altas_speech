@@ -1,6 +1,6 @@
 {
   "name": "catas_altas_speech",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Self-contained pt-BR text-to-speech engine (Web Speech API), extracted from the working speech feature in guia_js.",
   "type": "module",
   "main": "dist/esm/index.js",
