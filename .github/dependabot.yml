@@ -16,3 +16,9 @@ updates:
     # Runtime deps are zero by design; only devDependencies exist here.
     allow:
       - dependency-type: development
+    ignore:
+      # TypeScript 6 surfaces stricter typings (node globals, setInterval return
+      # nullability) that don't fit this verbatim-extracted, strict:false lib.
+      # Stay on 5.x; revisit 6.x deliberately (see ROADMAP) rather than via bot.
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']

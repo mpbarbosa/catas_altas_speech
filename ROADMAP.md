@@ -42,3 +42,10 @@ To enable it later:
   the verbatim guia_js style) via a one-time `npm run format` pass.
 - Add an automated test suite (none exists yet); the JSDoc references
   `afterEach`/`destroy()` cleanup, implying a future unit-test layer.
+- **Migrate to TypeScript 6.x** (currently pinned to `^5`; Dependabot major
+  bumps are ignored). TS 6 type-checks the codebase more strictly and requires:
+  - `src/utils/logger.ts`: make Node's `process` known to the type-checker
+    (e.g. add `"types": ["node"]` to `tsconfig.json`, or guard via `globalThis`),
+    fixing `TS2591 Cannot find name 'process'`.
+  - `src/utils/TimerManager.ts`: resolve `TS18047 'timerId' is possibly null`
+    around the `.unref()` calls (narrow the `setInterval` return type).
