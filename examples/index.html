@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>catas_altas_speech — demo</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+      h1 { font-size: 1.3rem; }
+      textarea { width: 100%; min-height: 4rem; font-size: 1rem; padding: .5rem; box-sizing: border-box; }
+      button { font-size: 1rem; padding: .6rem 1rem; margin: .3rem .3rem 0 0; cursor: pointer; }
+      .row { margin-top: 1rem; }
+      #status { margin-top: 1rem; font-family: ui-monospace, monospace; font-size: .85rem; color: #555; white-space: pre-wrap; }
+      .ok { color: #15803d; } .err { color: #b91c1c; }
+    </style>
+  </head>
+  <body>
+    <h1>catas_altas_speech — narração de teste</h1>
+    <p>Toque em <b>Falar</b>. No celular, deixe o volume de mídia alto (e no iPhone, o botão lateral fora do silencioso).</p>
+
+    <textarea id="text">Gol do Brasil! Brasil 1 a 0 Argentina.</textarea>
+    <div class="row">
+      <button id="speak">🔊 Falar</button>
+      <button id="goal">⚽ Simular gol (fila por prioridade)</button>
+      <button id="stop">⏹ Parar</button>
+    </div>
+    <div id="status">carregando…</div>
+
+    <script type="module">
+      // Imported straight from jsDelivr (no local build needed). For local
+      // hacking, swap this for "../dist/esm/index.js" after `npm run build`.
+      import SpeechSynthesisManager, { SPEECH_PRIORITY } from "https://cdn.jsdelivr.net/gh/mpbarbosa/catas_altas_speech@0.1.0/dist/esm/index.js";
+
+      const statusEl = document.getElementById("status");
+      const log = (msg, cls = "") => { statusEl.className = cls; statusEl.textContent = msg; };
+
+      let speech;
+      try {
+        speech = new SpeechSynthesisManager();
+        log("pronto. (a voz pt-BR carrega de forma assíncrona)", "ok");
+      } catch (e) {
+        log("Falha ao iniciar: " + e.message, "err");
+      }
+
+      const refreshVoice = () => {
+        const name = speech?.getCurrentVoice?.()?.name ?? speech?.getVoiceName?.() ?? null;
+        const n = speech?.getStatus?.()?.queueSize;
+        log(`voz: ${name ?? "(carregando…)"}${n != null ? ` · fila: ${n}` : ""}`, name ? "ok" : "");
+      };
+      setInterval(refreshVoice, 800);
+
+      document.getElementById("speak").addEventListener("click", () => {
+        speech?.speak(document.getElementById("text").value, SPEECH_PRIORITY?.MUNICIPIO ?? 3);
+        refreshVoice();
+      });
+      // Queue a few items at different priorities to show the goal jumps ahead.
+      document.getElementById("goal").addEventListener("click", () => {
+        speech?.speak("Cartão amarelo para Otamendi.", SPEECH_PRIORITY?.LOGRADOURO ?? 1);
+        speech?.speak("Gol do Brasil! Brasil 1 a 0 Argentina.", SPEECH_PRIORITY?.MUNICIPIO ?? 3);
+        refreshVoice();
+      });
+      document.getElementById("stop").addEventListener("click", () => { speech?.stop(); refreshVoice(); });
+    </script>
+  </body>
+</html>

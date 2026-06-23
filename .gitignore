@@ -80,8 +80,9 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
 .output
+
+# NOTE: dist/ is intentionally COMMITTED so jsDelivr (gh) can serve the ESM build.
 
 # Gatsby files
 .cache/

@@ -1,0 +1,40 @@
+{
+  "name": "catas_altas_speech",
+  "version": "0.1.0",
+  "description": "Self-contained pt-BR text-to-speech engine (Web Speech API), extracted from the working speech feature in guia_js.",
+  "type": "module",
+  "main": "dist/esm/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "serve": "python3 -m http.server 8099",
+    "demo": "npm run build && echo 'Open http://localhost:8099/examples/ then run: npm run serve'"
+  },
+  "keywords": [
+    "speech",
+    "text-to-speech",
+    "tts",
+    "web-speech-api",
+    "speechSynthesis",
+    "pt-BR",
+    "narracao"
+  ],
+  "author": "Marcelo Pereira Barbosa",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "typescript": "^5.5.4"
+  }
+}
