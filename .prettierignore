@@ -7,6 +7,10 @@ dist/
 src/
 examples/
 
+# Claude Code tooling config (skills, settings) — agent tooling, not project
+# source/docs; not subject to the project's Prettier house style.
+.claude/
+
 # Lockfile and node_modules
 package-lock.json
 node_modules/
