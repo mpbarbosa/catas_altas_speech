@@ -21,7 +21,7 @@ No build step, no bundler — import the ESM straight from jsDelivr:
 <script type="module">
   import SpeechSynthesisManager, {
     SPEECH_PRIORITY,
-  } from 'https://cdn.jsdelivr.net/gh/mpbarbosa/catas_altas_speech@0.1.0/dist/esm/index.js';
+  } from 'https://cdn.jsdelivr.net/gh/mpbarbosa/catas_altas_speech@0.1.1/dist/esm/index.js';
 
   const speech = new SpeechSynthesisManager();
 
@@ -33,7 +33,7 @@ No build step, no bundler — import the ESM straight from jsDelivr:
 </script>
 ```
 
-Pin a tag (`@0.1.0`) for stability, or use `@latest` to always get the newest
+Pin a tag (`@0.1.1`) for stability, or use `@latest` to always get the newest
 release. `dist/` is committed so jsDelivr can serve it.
 
 ## API
