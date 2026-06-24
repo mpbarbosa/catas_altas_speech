@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>catas_altas_speech — manual test harness</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 44rem;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        line-height: 1.5;
+      }
+      h1 {
+        font-size: 1.3rem;
+      }
+      textarea {
+        width: 100%;
+        min-height: 3.5rem;
+        font-size: 1rem;
+        padding: 0.5rem;
+        box-sizing: border-box;
+      }
+      button {
+        font-size: 1rem;
+        padding: 0.5rem 0.9rem;
+        margin: 0.3rem 0.3rem 0 0;
+        cursor: pointer;
+      }
+      label {
+        display: inline-block;
+        min-width: 5rem;
+      }
+      .row {
+        margin-top: 1rem;
+      }
+      select,
+      input[type="range"] {
+        font-size: 1rem;
+        vertical-align: middle;
+      }
+      #status {
+        margin-top: 1rem;
+        padding: 0.6rem;
+        background: #f5f5f5;
+        border-radius: 0.4rem;
+        font-family: ui-monospace, monospace;
+        font-size: 0.8rem;
+        white-space: pre-wrap;
+      }
+      #log {
+        margin-top: 0.6rem;
+        height: 8rem;
+        overflow: auto;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 0.4rem;
+        font-family: ui-monospace, monospace;
+        font-size: 0.75rem;
+      }
+      .err {
+        color: #b91c1c;
+      }
+      .muted {
+        color: #777;
+        font-size: 0.85rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>catas_altas_speech — manual test harness</h1>
+    <p class="muted">
+      Loads the <b>local build</b> (<code>../dist/esm/index.js</code>). Run
+      <code>npm run build</code> then serve over HTTP (<code>npm run serve</code> →
+      <a href="http://localhost:8099/examples/manual-test.html">/examples/manual-test.html</a>) — opening the file
+      directly via <code>file://</code> will not load the ES module. Mobile: keep media volume up; the first
+      <b>Speak</b> must come from a tap.
+    </p>
+
+    <textarea id="text">Você está chegando em Catas Altas. Gol do Brasil!</textarea>
+
+    <div class="row">
+      <label for="priority">Priority</label>
+      <select id="priority"></select>
+    </div>
+
+    <div class="row">
+      <button id="speak">🔊 Speak</button>
+      <button id="pause">⏸ Pause</button>
+      <button id="resume">▶ Resume</button>
+      <button id="stop">⏹ Stop</button>
+      <button id="enqueue3">➕ Enqueue 3 (mixed priority)</button>
+    </div>
+
+    <div class="row">
+      <label for="rate">Rate</label>
+      <input id="rate" type="range" min="0.1" max="10" step="0.1" value="1" />
+      <span id="rateVal">1.0</span>
+      &nbsp;&nbsp;
+      <label for="pitch">Pitch</label>
+      <input id="pitch" type="range" min="0" max="2" step="0.1" value="1" />
+      <span id="pitchVal">1.0</span>
+    </div>
+
+    <div class="row">
+      <label for="voice">Voice</label>
+      <select id="voice"><option>(loading…)</option></select>
+    </div>
+
+    <div id="status">starting…</div>
+    <div id="log"></div>
+
+    <script type="module">
+      import SpeechSynthesisManager, { SPEECH_PRIORITY } from "../dist/esm/index.js";
+
+      const $ = (id) => document.getElementById(id);
+      const logEl = $("log");
+      const log = (msg, cls = "") => {
+        const line = document.createElement("div");
+        if (cls) line.className = cls;
+        line.textContent = `${new Date().toLocaleTimeString()}  ${msg}`;
+        logEl.prepend(line);
+      };
+
+      // Populate the priority dropdown from the library's named tiers.
+      for (const [name, value] of Object.entries(SPEECH_PRIORITY)) {
+        const opt = document.createElement("option");
+        opt.value = String(value);
+        opt.textContent = `${name} (${value})`;
+        if (name === "MUNICIPIO") opt.selected = true;
+        $("priority").append(opt);
+      }
+
+      let speech;
+      try {
+        speech = new SpeechSynthesisManager(true); // enableLogging → console
+        log("SpeechSynthesisManager created");
+      } catch (e) {
+        log("init failed: " + e.message, "err");
+        $("status").textContent = "init failed: " + e.message;
+      }
+
+      // Voices load asynchronously — keep the <select> in sync until they appear.
+      let lastVoiceCount = -1;
+      function refreshVoices() {
+        if (!speech) return;
+        const voices = speech.getAvailableVoices();
+        if (voices.length === lastVoiceCount) return;
+        lastVoiceCount = voices.length;
+        const current = speech.getCurrentVoice();
+        const sel = $("voice");
+        sel.innerHTML = "";
+        const none = new Option("(library default)", "");
+        sel.append(none);
+        voices.forEach((v, i) => {
+          const o = new Option(`${v.name} — ${v.lang}${v.localService ? " · local" : ""}`, String(i));
+          if (current && v.name === current.name) o.selected = true;
+          sel.append(o);
+        });
+        log(`voices loaded: ${voices.length}` + (current ? ` · selected: ${current.name}` : ""));
+      }
+
+      function refreshStatus() {
+        if (!speech) return;
+        refreshVoices();
+        $("status").textContent = JSON.stringify(speech.getStatus(), null, 2);
+      }
+      setInterval(refreshStatus, 500);
+
+      const priority = () => Number($("priority").value);
+
+      $("speak").addEventListener("click", () => {
+        try {
+          speech.speak($("text").value, priority());
+          log(`speak("${$("text").value}", ${priority()})`);
+        } catch (e) {
+          log("speak error: " + e.message, "err");
+        }
+      });
+      $("pause").addEventListener("click", () => {
+        speech.pause();
+        log("pause()");
+      });
+      $("resume").addEventListener("click", () => {
+        speech.resume();
+        log("resume()");
+      });
+      $("stop").addEventListener("click", () => {
+        speech.stop();
+        log("stop()");
+      });
+      $("enqueue3").addEventListener("click", () => {
+        speech.speak("Periódico: posição atualizada.", SPEECH_PRIORITY.PERIODIC);
+        speech.speak("Bairro: Morro Vermelho.", SPEECH_PRIORITY.BAIRRO);
+        speech.speak("Município: Catas Altas! (deve falar primeiro)", SPEECH_PRIORITY.MUNICIPIO);
+        log("enqueued 3 items (PERIODIC, BAIRRO, MUNICIPIO) — highest speaks first");
+      });
+
+      $("rate").addEventListener("input", (e) => {
+        const v = Number(e.target.value);
+        $("rateVal").textContent = v.toFixed(1);
+        speech?.setRate(v);
+      });
+      $("pitch").addEventListener("input", (e) => {
+        const v = Number(e.target.value);
+        $("pitchVal").textContent = v.toFixed(1);
+        speech?.setPitch(v);
+      });
+      $("voice").addEventListener("change", (e) => {
+        const idx = e.target.value;
+        if (idx === "") {
+          speech.setVoice(null);
+          log("setVoice(null) — library default");
+        } else {
+          const v = speech.getAvailableVoices()[Number(idx)];
+          speech.setVoice(v);
+          log(`setVoice(${v.name})`);
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -28,4 +28,23 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // E2E specs and tooling live outside src/ and aren't type-checked by tsc.
+    // They legitimately reference browser globals (inside page.evaluate) and
+    // Node globals, so disable core no-undef here as we do for src/.
+    files: ['tests/e2e/**/*.ts', 'playwright.config.ts', 'scripts/**/*.mjs'],
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        URL: 'readonly',
+        window: 'readonly',
+        document: 'readonly',
+        speechSynthesis: 'readonly',
+      },
+    },
+    rules: {
+      'no-undef': 'off',
+    },
+  },
 );
