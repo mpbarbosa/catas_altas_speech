@@ -47,19 +47,21 @@ jobs:
           npm run clean
           npm run build
 
-      # Keep the README's jsDelivr examples pinned to the version being released,
-      # in the SAME commit that gets tagged (jsDelivr serves README from the tag).
-      - name: Bump README CDN references
+      # Keep the jsDelivr CDN pins (README + the example) on the version being
+      # released, in the SAME commit that gets tagged (jsDelivr serves these
+      # files from the tag, so a lagging pin ships an inconsistent reference).
+      - name: Bump CDN references
         env:
           VERSION: ${{ steps.bump.outputs.version }}
         run: |
-          # The only @<semver> tokens in README.md are the two CDN pins
-          # (the import URL and the "Pin a tag (`@x.y.z`)" note).
-          sed -i -E "s#@[0-9]+\.[0-9]+\.[0-9]+#@${VERSION}#g" README.md
-          if ! grep -q "catas_altas_speech@${VERSION}/dist/esm/index.js" README.md; then
-            echo "::error::README CDN reference was not updated to ${VERSION}"
-            exit 1
-          fi
+          # The only @<semver> tokens in these files are the jsDelivr CDN pins.
+          sed -i -E "s#@[0-9]+\.[0-9]+\.[0-9]+#@${VERSION}#g" README.md examples/index.html
+          for f in README.md examples/index.html; do
+            if ! grep -q "catas_altas_speech@${VERSION}/dist/esm/index.js" "$f"; then
+              echo "::error::CDN reference in ${f} was not updated to ${VERSION}"
+              exit 1
+            fi
+          done
 
       - name: Commit, tag & push
         env:
@@ -67,7 +69,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package.json package-lock.json dist README.md
+          git add package.json package-lock.json dist README.md examples/index.html
           git commit -m "build: ${VERSION}"
           # Tag convention: plain semver, no leading "v" (jsDelivr URLs pin @<version>).
           git tag -a "${VERSION}" -m "Release ${VERSION}"
