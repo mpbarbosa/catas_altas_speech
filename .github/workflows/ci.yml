@@ -28,6 +28,9 @@ jobs:
       - name: Type-check
         run: npm run typecheck
 
+      - name: Test
+        run: npm run test:coverage
+
       # dist/ is committed so jsDelivr can serve it. Rebuild and fail if the
       # committed output drifts from a fresh build (i.e. someone forgot to
       # rebuild after editing src/).

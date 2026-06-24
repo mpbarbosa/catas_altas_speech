@@ -40,8 +40,12 @@ To enable it later:
 
 - Adopt Prettier across `src/` (currently `.prettierignore`d to avoid churning
   the verbatim guia_js style) via a one-time `npm run format` pass.
-- Add an automated test suite (none exists yet); the JSDoc references
-  `afterEach`/`destroy()` cleanup, implying a future unit-test layer.
+- Extend the test suite. Vitest is wired in (`npm test`, `tests/` mirroring
+  `src/`) and covers the pure collaborators well (`SpeechItem`,
+  `SpeechConfiguration`, `VoiceSelector`, `SpeechQueue`, `VoiceLoader` — 66–93%).
+  Still uncovered: `SpeechSynthesisManager` (the browser orchestrator — needs a
+  faked `speechSynthesis`/`SpeechSynthesisUtterance`, or jsdom) and `TimerManager`.
+  Overall line coverage is ~37%; raising it means testing those two units.
 - **Migrate to TypeScript 6.x** (currently pinned to `^5`; Dependabot major
   bumps are ignored). TS 6 type-checks the codebase more strictly and requires:
   - `src/utils/logger.ts`: make Node's `process` known to the type-checker

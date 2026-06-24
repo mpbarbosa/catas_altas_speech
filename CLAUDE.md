@@ -16,19 +16,27 @@ npm install
 npm run build      # tsc -p tsconfig.json → dist/esm (ESM .js + .d.ts + sourcemaps)
 npm run clean      # rm -rf dist
 npm run typecheck  # tsc --noEmit (type-check without emitting)
+npm run test       # vitest run (unit tests, node env)
+npm run test:coverage # vitest run --coverage (v8)
 npm run lint       # eslint . && prettier --check .
 npm run format     # prettier --write . (excludes src/, dist/, examples/)
 npm run serve      # python3 -m http.server 8099  (then open /examples/)
 npm run deploy     # ./scripts/deploy.sh — local build+commit dist+tag+push (CDN release)
 ```
 
-There is **no test runner** (despite JSDoc blocks that reference tests/`afterEach` cleanup).
-Linting (ESLint flat config + Prettier) and type-checking are wired in and run in CI.
+**Tests:** Vitest, in `tests/` mirroring `src/`, run under the `node` environment (the
+Web Speech API is faked/injected — no DOM needed). They cover the **pure collaborators**
+(`SpeechItem`, `SpeechConfiguration`, `VoiceSelector`, `SpeechQueue`, `VoiceLoader`);
+the browser orchestrator `SpeechSynthesisManager` and `TimerManager` are intentionally
+not unit-tested yet (overall coverage ~37%, but those units are 66–93%). Linting (ESLint
+flat config + Prettier) and type-checking are also wired in. `tsconfig` only includes
+`src/`, so `tests/` are run by Vitest (esbuild) but not by `npm run typecheck`.
 
 ## CI/CD
 
-- **`.github/workflows/ci.yml`** (push to `main` + PRs): `npm ci` → lint → typecheck → a
-  **dist-drift check** that rebuilds and fails if the committed `dist/` differs from a fresh build.
+- **`.github/workflows/ci.yml`** (push to `main` + PRs): `npm ci` → lint → typecheck → test
+  (with coverage) → a **dist-drift check** that rebuilds and fails if the committed `dist/`
+  differs from a fresh build.
 - **`.github/workflows/release.yml`** (`workflow_dispatch`, input `bump` = patch/minor/major):
   bumps the version, rebuilds, commits `dist/`, tags (plain semver, **no `v`**), pushes, creates a
   GitHub Release, and purges the jsDelivr cache. `scripts/deploy.sh` does the same dance locally.
