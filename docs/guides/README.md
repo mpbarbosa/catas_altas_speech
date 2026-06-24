@@ -34,7 +34,7 @@ re-litigated. The full source catalog is the library's `CLAUDE.md`.
 | [Error Handling](./ERROR_HANDLING_GUIDE.md)               | The queue must survive transient Web Speech API `onerror` events; voice-load failure and observer errors are contained.                                                                                               |
 | [Referential Transparency](./REFERENTIAL_TRANSPARENCY.md) | Pure core (`VoiceSelector`, immutable `SpeechItem`) with effects isolated to `TimerManager`/`logger`/`synth`; flags the one hidden-time input (`isExpired` → `Date.now()`).                                           |
 | [Naming](./NAMING_GUIDE.md)                               | Clear public API plus the pt-BR `SPEECH_PRIORITY` domain vocabulary (`LOGRADOURO`, `BAIRRO`, `MUNICIPIO`) inherited from `guia_js`.                                                                                   |
-| [Unit Test](./UNIT_TEST_GUIDE.md)                         | Vitest covers the pure collaborators (66–93%); `SpeechSynthesisManager`/`TimerManager` remain untested (~37% overall). Names the seams and the next targets.                                                          |
+| [Unit Test](./UNIT_TEST_GUIDE.md)                         | Vitest covers the collaborators (66–93%) and `SpeechSynthesisManager` (~73%, globals faked with `vi.stubGlobal`); ~66% overall, `TimerManager` still untested. Names the seams and next targets.                      |
 | [LLM Context Efficiency](./LLM_CONTEXT_GUIDE.md)          | Repo is Claude Code–maintained; documents the committed-`dist/` trap and the one large file (`SpeechSynthesisManager`).                                                                                               |
 
 ## Project-specific guides

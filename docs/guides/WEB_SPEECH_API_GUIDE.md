@@ -86,11 +86,14 @@ add one.
 ## Testing implications
 
 `SpeechSynthesisUtterance` and `window.speechSynthesis` are browser globals, so the
-orchestrator (`SpeechSynthesisManager`) is not unit-tested yet — it needs a faked
-`speechSynthesis` + `SpeechSynthesisUtterance` or a jsdom environment. The pure
-collaborators are tested by **injecting** a fake `speechSynthesis` into
-`VoiceLoader` and plain voice objects into `VoiceSelector` — no DOM required. See
-[Unit Test Guide](./UNIT_TEST_GUIDE.md) and
+orchestrator (`SpeechSynthesisManager`) is tested by faking them with
+`vi.stubGlobal` — a recorded fake `synth` whose `speak()` captures the utterance so
+the test fires `onend`/`onerror` to drive queue progression (no jsdom needed; see
+`tests/speech/SpeechSynthesisManager.test.ts`). The pure collaborators are tested by
+**injecting** a fake `speechSynthesis` into `VoiceLoader` and plain voice objects
+into `VoiceSelector`. A useful finding from that test: `destroy()` releases the
+`synth` reference but does **not** reset `isCurrentlySpeaking` — the instance is
+meant to be discarded. See [Unit Test Guide](./UNIT_TEST_GUIDE.md) and
 [Referential Transparency Guide](./REFERENTIAL_TRANSPARENCY.md).
 
 ## Related guides

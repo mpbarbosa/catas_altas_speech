@@ -68,10 +68,11 @@ exists.
 
 Vitest is wired in; `tests/` covers the five pure collaborators well
 (`SpeechItem`, `SpeechConfiguration`, `VoiceSelector`, `SpeechQueue`,
-`VoiceLoader` — 66–93% each). **Overall coverage is ~37%** because two units are
-still untested: `SpeechSynthesisManager` (the browser orchestrator — needs a faked
-`window.speechSynthesis`/`SpeechSynthesisUtterance`, or a jsdom environment) and
-`TimerManager`. Those are the highest-value targets for raising coverage next.
+`VoiceLoader` — 66–93% each) plus the orchestrator `SpeechSynthesisManager`
+(~73%, tested by faking `window.speechSynthesis` and `SpeechSynthesisUtterance`
+with `vi.stubGlobal` — no jsdom needed). **Overall coverage is ~66%.** The main
+remaining gap is `TimerManager` (0%) and the deeper `SpeechSynthesisManager`
+branches (the legacy retry timer and independent queue-timer paths).
 
 ## Related Guides
 

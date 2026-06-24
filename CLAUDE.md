@@ -25,12 +25,12 @@ npm run deploy     # ./scripts/deploy.sh — local build+commit dist+tag+push (C
 ```
 
 **Tests:** Vitest, in `tests/` mirroring `src/`, run under the `node` environment (the
-Web Speech API is faked/injected — no DOM needed). They cover the **pure collaborators**
-(`SpeechItem`, `SpeechConfiguration`, `VoiceSelector`, `SpeechQueue`, `VoiceLoader`);
-the browser orchestrator `SpeechSynthesisManager` and `TimerManager` are intentionally
-not unit-tested yet (overall coverage ~37%, but those units are 66–93%). Linting (ESLint
-flat config + Prettier) and type-checking are also wired in. `tsconfig` only includes
-`src/`, so `tests/` are run by Vitest (esbuild) but not by `npm run typecheck`.
+Web Speech API is faked via `vi.stubGlobal` / injected — no DOM needed). They cover the
+collaborators **and** the orchestrator: `SpeechItem`, `SpeechConfiguration`,
+`VoiceSelector`, `SpeechQueue`, `VoiceLoader`, and `SpeechSynthesisManager`
+(~66% overall; `TimerManager` and the deeper manager branches remain untested). Linting
+(ESLint flat config + Prettier) and type-checking are also wired in. `tsconfig` only
+includes `src/`, so `tests/` are run by Vitest (esbuild) but not by `npm run typecheck`.
 
 ## CI/CD
 
